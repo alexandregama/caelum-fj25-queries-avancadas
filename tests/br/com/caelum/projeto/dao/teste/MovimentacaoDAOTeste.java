@@ -19,6 +19,7 @@ import br.com.caelum.projeto.dao.MovimentacaoDAO;
 import br.com.caelum.projeto.modelo.Conta;
 import br.com.caelum.projeto.modelo.Movimentacao;
 import br.com.caelum.projeto.modelo.TipoMovimentacao;
+import br.com.caelum.projeto.modelo.ValoresPorMesETipo;
 
 /* 
  * Este código não foi refatorado justamente para os alunos do FJ-25 entenderem o fluxo 
@@ -199,6 +200,84 @@ public class MovimentacaoDAOTeste {
 		assertEquals(valoresPorMes.get(1)[0], 11);
 		assertEquals(valoresPorMes.get(1)[1], 2012);
 		assertEquals(valoresPorMes.get(1)[2], new BigDecimal("1000.00"));
+	}
+
+	@Test
+	public void deveriaRetornarOValorTotalDeMovimentacoesPorMesEPorTipoDeMovimentacao_UsandoClasseUmaAuxiliar() throws Exception {
+		Calendar dataDeOutubro = Calendar.getInstance();
+		dataDeOutubro.set(2012, 9, 20);
+		Movimentacao movimentacaoA = new Movimentacao();
+		movimentacaoA.setTipoMovimentacao(TipoMovimentacao.SAIDA);
+		movimentacaoA.setValor(new BigDecimal("900.00"));
+		movimentacaoA.setData(dataDeOutubro);
+		
+		Calendar dataDeNovembro = Calendar.getInstance();
+		dataDeNovembro.set(2012, 10, 01);
+		Movimentacao movimentacaoB = new Movimentacao();
+		movimentacaoB.setTipoMovimentacao(TipoMovimentacao.SAIDA);
+		movimentacaoB.setValor(new BigDecimal("800.00"));
+		movimentacaoB.setData(dataDeNovembro);
+		
+		Movimentacao movimentacaoC = new Movimentacao();
+		movimentacaoC.setTipoMovimentacao(TipoMovimentacao.SAIDA);
+		movimentacaoC.setValor(new BigDecimal("200.00"));
+		movimentacaoC.setData(dataDeNovembro);
+		
+		entityManager.getTransaction().begin();
+		MovimentacaoDAO movimentacaoDAO = new MovimentacaoDAO(entityManager);
+		movimentacaoDAO.adiciona(movimentacaoA);
+		movimentacaoDAO.adiciona(movimentacaoB);
+		movimentacaoDAO.adiciona(movimentacaoC);
+		entityManager.getTransaction().commit();
+		
+		List<ValoresPorMesETipo> valoresPorMes = movimentacaoDAO.buscaValorTotalPorMesEPorTipo_EncapsulandoEmClasseAuxiliar(TipoMovimentacao.SAIDA);
+		
+		assertEquals(valoresPorMes.get(0).getMes(), 10);
+		assertEquals(valoresPorMes.get(0).getAno(), 2012);
+		assertEquals(valoresPorMes.get(0).getTotal(), new BigDecimal("900.00"));
+		
+		assertEquals(valoresPorMes.get(1).getMes(), 11);
+		assertEquals(valoresPorMes.get(1).getAno(), 2012);
+		assertEquals(valoresPorMes.get(1).getTotal(), new BigDecimal("1000.00"));
+	}
+
+	@Test
+	public void deveriaRetornarOValorTotalDeMovimentacoesPorMesEPorTipoDeMovimentacao_RetornandoListaDeFormaDireta() throws Exception {
+		Calendar dataDeOutubro = Calendar.getInstance();
+		dataDeOutubro.set(2012, 9, 20);
+		Movimentacao movimentacaoA = new Movimentacao();
+		movimentacaoA.setTipoMovimentacao(TipoMovimentacao.SAIDA);
+		movimentacaoA.setValor(new BigDecimal("900.00"));
+		movimentacaoA.setData(dataDeOutubro);
+		
+		Calendar dataDeNovembro = Calendar.getInstance();
+		dataDeNovembro.set(2012, 10, 01);
+		Movimentacao movimentacaoB = new Movimentacao();
+		movimentacaoB.setTipoMovimentacao(TipoMovimentacao.SAIDA);
+		movimentacaoB.setValor(new BigDecimal("800.00"));
+		movimentacaoB.setData(dataDeNovembro);
+		
+		Movimentacao movimentacaoC = new Movimentacao();
+		movimentacaoC.setTipoMovimentacao(TipoMovimentacao.SAIDA);
+		movimentacaoC.setValor(new BigDecimal("200.00"));
+		movimentacaoC.setData(dataDeNovembro);
+		
+		entityManager.getTransaction().begin();
+		MovimentacaoDAO movimentacaoDAO = new MovimentacaoDAO(entityManager);
+		movimentacaoDAO.adiciona(movimentacaoA);
+		movimentacaoDAO.adiciona(movimentacaoB);
+		movimentacaoDAO.adiciona(movimentacaoC);
+		entityManager.getTransaction().commit();
+		
+		List<ValoresPorMesETipo> valoresPorMes = movimentacaoDAO.buscaValorTotalPorMesEPorTipo_EncapsulandoEmClasseAuxiliar(TipoMovimentacao.SAIDA);
+		
+		assertEquals(valoresPorMes.get(0).getMes(), 10);
+		assertEquals(valoresPorMes.get(0).getAno(), 2012);
+		assertEquals(valoresPorMes.get(0).getTotal(), new BigDecimal("900.00"));
+		
+		assertEquals(valoresPorMes.get(1).getMes(), 11);
+		assertEquals(valoresPorMes.get(1).getAno(), 2012);
+		assertEquals(valoresPorMes.get(1).getTotal(), new BigDecimal("1000.00"));
 	}
 	
 	private void removeDados() {

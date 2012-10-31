@@ -1,6 +1,7 @@
 package br.com.caelum.projeto.dao;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -10,6 +11,7 @@ import javax.persistence.TypedQuery;
 import br.com.caelum.projeto.modelo.Conta;
 import br.com.caelum.projeto.modelo.Movimentacao;
 import br.com.caelum.projeto.modelo.TipoMovimentacao;
+import br.com.caelum.projeto.modelo.ValoresPorMesETipo;
 
 public class MovimentacaoDAO {
 
@@ -85,6 +87,56 @@ public class MovimentacaoDAO {
 		query.setParameter("tipo", tipo);
 		
 		return (List<Object[]>) query.getResultList();
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<ValoresPorMesETipo> buscaValorTotalPorMesEPorTipo_EncapsulandoEmClasseAuxiliar(TipoMovimentacao tipo) {
+		Query query = entityManager.createQuery(
+				"select " +
+				"	month(m.data)," +
+				"	year(m.data)," +
+				"	sum(m.valor) " +
+				"from " +
+				"	Movimentacao m " +
+				"where " +
+				"	m.tipoMovimentacao = :tipo " +
+				"group by " +
+				"	month(m.data), " +
+				"	year(m.data)");
+		query.setParameter("tipo", tipo);
+		List<Object[]> resultados = query.getResultList();
+		
+		List<ValoresPorMesETipo> valores = new ArrayList<ValoresPorMesETipo>();
+		for (Object[] obj : resultados) {
+			ValoresPorMesETipo valorPorMesETipo = new ValoresPorMesETipo();
+			valorPorMesETipo.setMes((Integer) obj[0]);
+			valorPorMesETipo.setAno((Integer) obj[1]);
+			valorPorMesETipo.setTotal((BigDecimal) obj[2]);
+			
+			valores.add(valorPorMesETipo);
+		}
+		
+		return valores;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<ValoresPorMesETipo> buscaValorTotalPorMesEPorTipo_RetornandoListaSemParse(TipoMovimentacao tipo) {
+		Query query = entityManager.createQuery(
+				"select new br.com.caelum.projeto.modelo.ValoresPorMesETipo(" +
+				"	month(m.data)," +
+				"	year(m.data)," +
+				"	sum(m.valor)) " +
+				"from " +
+				"	Movimentacao m " +
+				"where " +
+				"	m.tipoMovimentacao = :tipo " +
+				"group by " +
+				"	month(m.data), " +
+				"	year(m.data)");
+		query.setParameter("tipo", tipo);
+		List<ValoresPorMesETipo> valores = query.getResultList();
+		
+		return valores;
 	}
 
 }
