@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
 import br.com.caelum.projeto.modelo.Conta;
@@ -65,6 +66,25 @@ public class MovimentacaoDAO {
 		BigDecimal valorTotal = query.getSingleResult();
 		
 		return valorTotal;
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<Object[]> buscaValorTotalPorMesEPorTipo(TipoMovimentacao tipo) {
+		Query query = entityManager.createQuery(
+				"select " +
+				"	month(m.data)," +
+				"	year(m.data)," +
+				"	sum(m.valor) " +
+				"from " +
+				"	Movimentacao m " +
+				"where " +
+				"	m.tipoMovimentacao = :tipo " +
+				"group by " +
+				"	month(m.data), " +
+				"	year(m.data)");
+		query.setParameter("tipo", tipo);
+		
+		return (List<Object[]>) query.getResultList();
 	}
 
 }

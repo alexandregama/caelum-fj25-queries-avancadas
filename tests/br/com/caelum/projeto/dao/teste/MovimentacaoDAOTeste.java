@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.math.BigDecimal;
+import java.util.Calendar;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -157,8 +158,53 @@ public class MovimentacaoDAOTeste {
 		assertEquals(new BigDecimal("1600.00"), valorTotal);
 	}
 	
+	@Test
+	public void deveriaRetornarOValorTotalDeMovimentacoesPorMesEPorTipoDeMovimentacao() throws Exception {
+		Calendar dataDeOutubro = Calendar.getInstance();
+		dataDeOutubro.set(2012, 9, 20);
+		Movimentacao movimentacaoA = new Movimentacao();
+		movimentacaoA.setTipoMovimentacao(TipoMovimentacao.SAIDA);
+		movimentacaoA.setValor(new BigDecimal("900.00"));
+		movimentacaoA.setData(dataDeOutubro);
+		
+		Calendar dataDeNovembro = Calendar.getInstance();
+		dataDeNovembro.set(2012, 10, 01);
+		Movimentacao movimentacaoB = new Movimentacao();
+		movimentacaoB.setTipoMovimentacao(TipoMovimentacao.SAIDA);
+		movimentacaoB.setValor(new BigDecimal("800.00"));
+		movimentacaoB.setData(dataDeNovembro);
+		
+		Movimentacao movimentacaoC = new Movimentacao();
+		movimentacaoC.setTipoMovimentacao(TipoMovimentacao.SAIDA);
+		movimentacaoC.setValor(new BigDecimal("200.00"));
+		movimentacaoC.setData(dataDeNovembro);
+		
+		entityManager.getTransaction().begin();
+		MovimentacaoDAO movimentacaoDAO = new MovimentacaoDAO(entityManager);
+		movimentacaoDAO.adiciona(movimentacaoA);
+		movimentacaoDAO.adiciona(movimentacaoB);
+		movimentacaoDAO.adiciona(movimentacaoC);
+		entityManager.getTransaction().commit();
+		
+		List<Object[]> valoresPorMes = movimentacaoDAO.buscaValorTotalPorMesEPorTipo(TipoMovimentacao.SAIDA);
+		
+		for (Object[] obj : valoresPorMes) {
+			System.out.println("Mês: " + obj[0] + " Ano:" + obj[1] + " Total: " + obj[2]);
+		}
+		
+		assertEquals(valoresPorMes.get(0)[0], 10);
+		assertEquals(valoresPorMes.get(0)[1], 2012);
+		assertEquals(valoresPorMes.get(0)[2], new BigDecimal("900.00"));
+		
+		assertEquals(valoresPorMes.get(1)[0], 11);
+		assertEquals(valoresPorMes.get(1)[1], 2012);
+		assertEquals(valoresPorMes.get(1)[2], new BigDecimal("1000.00"));
+	}
+	
 	private void removeDados() {
 		ManipuladorDeDados manipuladorDeDados = new ManipuladorDeDados(entityManager);
 		manipuladorDeDados.removeTodosOsDados();
 	}
 }
+
+
