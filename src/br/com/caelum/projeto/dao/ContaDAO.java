@@ -11,6 +11,7 @@ import br.com.caelum.projeto.modelo.Conta;
 public class ContaDAO {
 
 	private DAO<Conta> dao;
+	
 	private EntityManager entityManager;
 	
 	public ContaDAO(EntityManager entityManager) {

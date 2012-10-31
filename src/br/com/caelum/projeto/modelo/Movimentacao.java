@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.util.Calendar;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
@@ -20,6 +22,9 @@ public class Movimentacao {
 	private Calendar data;
 
 	private BigDecimal valor;
+	
+	@Enumerated(EnumType.STRING)
+	private TipoMovimentacao tipoMovimentacao; 
 
 	@ManyToOne
 	private Conta conta;
@@ -58,6 +63,14 @@ public class Movimentacao {
 
 	public void setConta(Conta conta) {
 		this.conta = conta;
+	}
+
+	public TipoMovimentacao getTipoMovimentacao() {
+		return tipoMovimentacao;
+	}
+
+	public void setTipoMovimentacao(TipoMovimentacao tipoMovimentacao) {
+		this.tipoMovimentacao = tipoMovimentacao;
 	}
 
 }
